@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Mario Kart Picker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+</head>
+
+<script>
+    //Data set
+    var data = {
+
+        init: [
+            "Welcome to Mario Kart World Character Picker! First, choose your size:",
+            "small",
+            "medium",
+            "large"
+        ],
+
+        // small
+        small: [
+            "Choose your weight class:",
+            "flyweight",
+            "featherweight",
+            "lightweight"
+        ],
+
+        flyweight: [
+            "Flyweights:",
+            "babypeach",
+            "babydaisy",
+            "swooper",
+            "parabiddybud"
+        ],
+
+        featherweight: [
+            "Do you prefer higher stats on road, offroad, or water?",
+            "road_fw",
+            "rough_fw",
+            "water_fw"
+        ],
+        road_fw: [
+            "Road featherweights:",
+            "babymario",
+            "goomba",
+            "spike"
+        ],
+        rough_fw: [
+            "Rough featherweights:",
+            "babyluigi",
+            "drybones",
+            "peepa"
+        ],
+        water_fw: [
+            "Water featherweights:",
+            "babyrosalina",
+            "sidestepper",
+            "fishbone"
+        ],
+
+        lightweight: [
+            "Do you prefer higher stats on road, offroad, or water?",
+            "road_lw",
+            "rough_lw",
+            "water_lw"
+        ],
+        road_lw: [
+            "Road lightweights:",
+            "toadette",
+            "nabbit"
+        ],
+        rough_lw: [
+            "Rough lightweights:",
+            "toad",
+            "shyguy",
+            "stingby"
+        ],
+        water_lw: [
+            "Water lightweights:",
+            "koopatroopa",
+            "lakitu",
+            "cheepcheep"
+        ],
+
+        // medium 
+        medium: [
+            "Choose your weight class:",
+            "welterweight",
+            "middleweight"
+        ],
+
+        welterweight: [
+            "Do you prefer higher stats on road, offroad, or water?",
+            "road_welter",
+            "rough_welter",
+            "water_welter"
+        ],
+        road_welter: [
+            "Road welterweights:",
+            "peach",
+            "daisy",
+            "coincoffer"
+        ],
+        rough_welter: [
+            "Rough welterweights:",
+            "yoshi",
+            "montymole"
+        ],
+        water_welter: [
+            "Water welterweights:",
+            "bowserjr",
+            "dolphin"
+        ],
+
+        middleweight: [
+            "Do you prefer higher stats on road, offroad, or water?",
+            "road_mid",
+            "rough_mid",
+            "water_mid"
+        ],
+        road_mid: [
+            "Road middleweights:",
+            "mario",
+            "rockywrench"
+        ],
+        rough_mid: [
+            "Rough middleweights:",
+            "luigi",
+            "hammerbro",
+            "pokey"
+        ],
+        water_mid: [
+            "Water middleweights:",
+            "birdo",
+            "penguin"
+        ],
+
+        // large 
+        large: [
+            "Choose your weight class:",
+            "cruiserweight",
+            "heavyweight",
+            "superheavyweight"
+        ],
+
+        cruiserweight: [
+            "Do you prefer higher stats on road, offroad, or water?",
+            "road_cruiser",
+            "rough_cruiser",
+            "water_cruiser"
+        ],
+        road_cruiser: [
+            "Road cruiserweights:",
+            "pauline",
+            "snowman",
+            "piranhaplant"
+        ],
+        rough_cruiser: [
+            "Rough cruiserweights:",
+            "kingboo",
+            "conkdor"
+        ],
+        water_cruiser: [
+            "Water cruiserweights:",
+            "rosalina",
+            "cataquack"
+        ],
+
+        heavyweight: [
+            "Do you prefer higher stats on road, offroad, or water?",
+            "road_hvy",
+            "rough_hvy",
+            "water_hvy"
+        ],
+        road_hvy: [
+            "Road heavyweights:",
+            "wario",
+            "wiggler"
+        ],
+        rough_hvy: [
+            "Rough heavyweights:",
+            "donkeykong",
+            "charginchuck",
+            "cow"
+        ],
+        water_hvy: [
+            "Water heavyweights:",
+            "waluigi",
+            "pianta"
+        ],
+
+        superheavyweight: [
+            "Super Heavyweights:",
+            "bowser"
+        ]
+    };
+
+    document.addEventListener("DOMContentLoaded", function () { init(this) });
+
+    //to check if cookies and storage are enabled and store it
+    var cookiesEnabled = navigator.cookieEnabled;
+    var localStorageEnabled = window.localStorage;
+
+    //to track the path in select options
+    var characterPath = [];
+
+
+    // helper function to easily create text nodes
+    // wanted to easily replace all text content that was previously used
+    function text(text) {
+        return document.createTextNode(text);
+    }
+
+
+
+    function init(dom) {
+        // If both are disabled, redirect
+        if (!localStorageEnabled && !cookiesEnabled) {
+            window.location.href = "/redirect.html";
+        }
+
+
+        let options = data['init'];
+        let sEle = document.createElement('select');
+        let container = document.createElement('div');
+        container.id = 'start';
+
+        // button so user can restart whenever they want
+        if (!document.getElementById("resetButton")) {
+            let resetBtn = document.createElement("button");
+            resetBtn.id = "resetButton";
+            resetBtn.appendChild(text("Restart"));
+            resetBtn.onclick = resetQuestions;
+
+            document.body.appendChild(resetBtn);
+        }
+
+        sEle.onchange = function () { build(this); };
+
+        let h2 = document.createElement('h2');
+        h2.appendChild(text(options[0]));
+
+        container.appendChild(h2);
+
+        // creating options with an initial select... based off the data
+        placeholder = document.createElement('option');
+        placeholder.value = "skip";
+        placeholder.text = "select...";
+        sEle.appendChild(placeholder);
+        for (let i = 1; i < options.length; i++) {
+            let opt = document.createElement('option');
+            opt.value = options[i].toLowerCase();
+            opt.text = options[i];
+            sEle.appendChild(opt);
+        }
+
+        container.appendChild(sEle);
+        document.getElementById('main').appendChild(container);
+
+        // history bar for past character choices
+        if (!document.getElementById("historyBar")) {
+            let historyBar = document.createElement("div");
+            historyBar.id = "historyBar";
+            let barLabel = document.createElement("h3");
+            barLabel.appendChild(text("Past choices:"));
+            historyBar.appendChild(barLabel);
+            document.body.appendChild(historyBar);
+        }
+
+        updateCharacterHistory();
+    }
+
+
+    function build(dom) {
+        // Remove all subsequent selects/containers after this one
+        let parentDiv = document.getElementById('main');
+        let children = Array.from(parentDiv.children);
+        let index = -1;
+
+        // find index of current question
+        for (let i = 0; i < children.length; i++) {
+            if (children[i].id === dom.parentNode.id) {
+                index = i;
+                break;
+            }
+        }
+
+        // if we founnd index of current question
+        if (index !== -1) {
+            //remove all questions after this
+            for (let i = children.length - 1; i > index; i--) {
+                parentDiv.removeChild(children[i]);
+            }
+
+            // trim path to remove all answers after current
+            characterPath = characterPath.slice(0, index);
+        }
+
+        // remove form if it exists
+        let oldForm = document.getElementById("finalForm");
+        if (oldForm && oldForm.parentNode) {
+            oldForm.parentNode.removeChild(oldForm);
+        }
+
+        // remove path if it exists
+        let oldPath = document.getElementById("pathText");
+        if (oldPath && oldPath.parentNode) {
+            oldPath.parentNode.removeChild(oldPath);
+        }
+
+        // remove old img if it exists
+        let oldImg = document.getElementById("charImg");
+        if (oldImg && oldImg.parentNode) {
+            oldImg.parentNode.removeChild(oldImg);
+        }
+
+        let options = data[dom.value];
+
+        //prevent continuing if skip
+        if (dom.value === "skip") {
+            return;
+        }
+
+        //to clean up sequence path
+        let temp = dom.value.split("_")[0];
+        temp = temp.charAt(0).toUpperCase() + temp.slice(1);
+
+        // updating the characterPath
+        characterPath.push(temp);
+
+
+        // if this answer has a follow up question
+        if (options != undefined) {
+            // building select options dynamically from options
+            let sEle = document.createElement('select');
+            let container = document.createElement('div');
+            container.id = dom.value;
+
+            // start offscreen
+            container.style.position = "relative";
+            container.style.left = "-200px";
+
+            sEle.onchange = function () {
+                build(this);
+            };
+
+            let h2 = document.createElement('h3');
+            h2.appendChild(text(options[0]));
+            container.appendChild(h2);
+
+            let placeholder = document.createElement('option');
+            placeholder.value = "skip";
+            placeholder.text = "select...";
+            sEle.appendChild(placeholder);
+
+            for (let i = 1; i < options.length; i++) {
+                let opt = document.createElement('option');
+                opt.value = options[i].toLowerCase();
+                // just for visuals, if there is a _ we dont show the 2nd half
+                opt.text = options[i].split("_")[0];
+                sEle.appendChild(opt);
+            }
+
+            container.appendChild(sEle);
+            parentDiv.appendChild(container);
+
+            requestAnimationFrame(function () {
+                animation(container.id, 'left', 0, 5);
+            });
+        } else {
+            // if answer does not have a follow up question, build what we need to build
+            buildCharacter(dom.value);
+            buildForm(document.body);
+        }
+    }
+
+
+    //for animating elements
+    function animation(id, property, target, delta) {
+        let d = document.getElementById(id);
+        let pos = parseInt(d.style[property]);
+
+        if ((delta > 0 && pos < target) || (delta < 0 && pos > target)) {
+            d.style[property] = pos + delta + 'px';
+
+            requestAnimationFrame(function () {
+                animation(id, property, target, delta);
+            });
+        } else {
+            // guarding for invalid parameters
+            d.style[property] = target + 'px';
+        }
+    }
+
+    // helper function for creating form questions
+    function createFormQuestion(labelText, inputType, name) {
+        let wrapper = document.createElement('div');
+        wrapper.className = "form-field";
+
+        let label = document.createElement('label');
+        label.appendChild(text(labelText));
+        label.setAttribute('for', name);
+
+        let input = document.createElement('input');
+        input.type = inputType;
+        input.name = name;
+        input.id = name;
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+
+        return wrapper;
+    }
+
+    //building the form after no more questions can be asked
+    function buildForm(dom) {
+        let form = document.createElement('form');
+        form.id = "finalForm";
+
+        form.style.position = "relative";
+        form.style.left = "0px";
+        form.style.top = "-500px";
+
+        form.appendChild(createFormQuestion('Name: ', 'text', 'name'));
+        form.appendChild(createFormQuestion('Email: ', 'email', 'email'));
+        form.appendChild(createFormQuestion('Nintendo gamer ID: ', 'text', 'gamer_id'));
+
+
+        let button = document.createElement('button');
+        button.type = 'submit';
+        button.appendChild(text('Submit'));
+        form.noValidate = true;
+        form.onsubmit = async function (e) {
+            e.preventDefault();
+            await validateForm();
+        }
+
+        form.appendChild(button);
+        document.getElementById('main2').appendChild(form);
+
+
+        //Autofill if exists in local storage
+        if (localStorage.getItem("name")) {
+            document.getElementById("name").value = localStorage.getItem("name");
+        }
+        if (localStorage.getItem("email")) {
+            document.getElementById("email").value = localStorage.getItem("email");
+        }
+        if (localStorage.getItem("gamer_id")) {
+            document.getElementById("gamer_id").value = localStorage.getItem("gamer_id");
+        }
+
+        // also try cookies as a fallback
+        (async () => {
+            try {
+                if (cookiesEnabled) {
+                    const cookies = await cookieStore.getAll();
+                    for (var c of cookies) {
+                        if (c.name === "name" && !document.getElementById("name").value) {
+                            document.getElementById("name").value = c.value;
+                        }
+                        if (c.name === "email" && !document.getElementById("email").value) {
+                            document.getElementById("email").value = c.value;
+                        }
+                        if (c.name === "gamer_id" && !document.getElementById("gamer_id").value) {
+                            document.getElementById("gamer_id").value = c.value;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Could not read cookies:", e);
+            }
+        })();
+
+
+        requestAnimationFrame(function () {
+            animation(form.id, "top", 100, 20);
+        });
+    }
+
+    //for resetting after the reset button is hit or after the form is submitted
+    function resetQuestions() {
+        let allContainer = document.getElementById('main');
+
+        while (allContainer.firstChild) {
+            allContainer.removeChild(allContainer.firstChild);
+        }
+
+        // remove form if it exists
+        let oldForm = document.getElementById("finalForm");
+        if (oldForm && oldForm.parentNode) {
+            oldForm.parentNode.removeChild(oldForm);
+        }
+
+        // remove path if it exists
+        let oldPath = document.getElementById("pathText");
+        if (oldPath && oldPath.parentNode) {
+            oldPath.parentNode.removeChild(oldPath);
+            characterPath = [];
+        }
+
+        // remove character image if it exists
+        let oldImg = document.getElementById("charImg");
+        if (oldImg && oldImg.parentNode) {
+            oldImg.parentNode.removeChild(oldImg);
+        }
+
+        // re-init
+        init(document);
+
+    }
+
+    // building path of sequence after final option is reached
+    function buildPath() {
+        let fullPath = "";
+
+        for (let i = 0; i < characterPath.length; i++) {
+            fullPath += characterPath[i];
+            if (i < characterPath.length - 1) {
+                fullPath += " \u2192 ";
+            }
+        }
+
+
+        let pathDisplay = document.createElement("p");
+        pathDisplay.id = "pathText";
+        pathDisplay.appendChild(text(fullPath));
+        pathDisplay.style.position = "relative";
+        pathDisplay.style.top = "-500px";
+        pathDisplay.style.fontSize = "18px";
+        pathDisplay.style.fontWeight = "bold";
+        pathDisplay.style.color = "black";
+        document.getElementById("main2").appendChild(pathDisplay);
+
+        requestAnimationFrame(function () {
+            animation(pathDisplay.id, "top", 30, 20);
+        });
+    }
+
+    // function to build the character (specific to this data set)
+    function buildCharacter(characterName) {
+
+        let img = document.createElement("img");
+        img.id = "charImg";
+        img.src = "media/" + characterName + ".png";
+        img.style.position = "relative";
+        img.style.top = "-500px";
+        img.style.maxWidth = "200px";
+        img.style.borderRadius = "25px";
+
+
+        document.getElementById("main2").appendChild(img);
+
+        buildPath();
+
+        requestAnimationFrame(function () {
+            animation(img.id, "top", 50, 20);
+        });
+
+    }
+
+    // finding path that it took to get to the character
+    function findPathToCharacter(characterName) {
+        //using a stack?
+        //depth first search for character since we dont store it
+        let stack = [{ key: "init", path: [] }];
+        let target = characterName.toLowerCase();
+
+        while (stack.length > 0) {
+            let { key, path } = stack.pop();
+            let options = data[key];
+            if (!options) continue;
+
+            for (let i = 1; i < options.length; i++) {
+                let value = options[i].toLowerCase();
+
+
+                if (value === target) {
+                    let formattedPath = [];
+                    for (let i = 0; i < path.length; i++) {
+                        let step = path[i];
+                        // skip init
+                        if (step.toLowerCase() === "init") {
+                            continue;
+                        }
+                        //remove _ and everything after
+                        step = step.split("_")[0];
+                        formattedPath.push(step.charAt(0).toUpperCase() + step.slice(1));
+                    }
+
+                    let displayValue = value.split("_")[0];
+                    formattedPath.push(displayValue.charAt(0).toUpperCase() + displayValue.slice(1));
+
+                    return formattedPath.join(" \u2192 ");
+                }
+
+
+                // add children to explore
+                if (data[value]) {
+                    let newPath = path.slice();
+                    newPath.push(value);
+                    stack.push({ key: value, path: newPath });
+                }
+            }
+        }
+
+        return "Path not found";
+    }
+
+
+
+
+
+    /// TIPS FOR INCORRECT FORM ANSWERS
+    function showTip(input, message) {
+        //div of the question
+        let wrapper = input.parentNode;
+
+        let tips = wrapper.getElementsByClassName("error-tip");
+        let tip;
+
+        // if tip is there already, dont do anything
+        if (tips.length > 0) {
+            tip = tips[0];
+        } else {
+            //else, add the tip and append it below input
+            tip = document.createElement("div");
+            tip.className = "error-tip";
+            wrapper.appendChild(tip);
+        }
+
+        tip.appendChild(text(message));
+    }
+
+    // Clearing tip
+    function clearTip(input) {
+        //div of the question
+        let wrapper = input.parentNode;
+
+        //get and remove all tips from this div
+        let tips = wrapper.getElementsByClassName("error-tip");
+        if (tips.length > 0) {
+            wrapper.removeChild(tips[0]);
+        }
+    }
+
+
+    // for updating the history bar after selections are made (and to start when returning to the site)
+    async function updateCharacterHistory() {
+        const historyBar = document.getElementById("historyBar");
+
+        while (historyBar.firstChild) {
+            historyBar.removeChild(historyBar.firstChild);
+        }
+
+        let barLabel = document.createElement("h3");
+        barLabel.appendChild(text("Past choices:"));
+        historyBar.appendChild(barLabel);
+
+        const characters = [];
+
+        // Rebuild from localStorage
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith("character_")) {
+                characters.push(localStorage.getItem(key));
+            }
+        }
+
+        // Fallback to cookies if localStorage empty
+        if (characters.length === 0) {
+            try {
+                if (cookiesEnabled) {
+                    let cookies = await cookieStore.getAll();
+                    cookies.forEach(c => {
+                        if (c.name.startsWith("character_")) {
+                            characters.push(c.value);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Cookie read failed:", e);
+            }
+        }
+
+        // Append images
+        for (let i = 0; i < characters.length; i++) {
+            const c = characters[i];
+            const img = document.createElement("img");
+            img.src = "media/" + c + ".png";
+
+            img.onclick = function () {
+                let pathString = findPathToCharacter(c);
+
+                //use toastify to show a nice message because I hate alerts
+                try {
+                    Toastify({
+                        text: "Path: " + pathString,
+                        duration: 4000,
+                        close: true,
+                        gravity: "top",
+                        position: "center",
+                        stopOnFocus: true,
+                        style: {
+                            background: "rgb(148, 130, 211)",
+                            color: "white",
+                            fontFamily: '"Cooper Black", "Arial Black", Gadget, sans-serif',
+                            borderRadius: "12px",
+                            boxShadow: "0 0 8px rgba(148, 130, 211, 0.4)"
+                        },
+
+                    }).showToast();
+                } catch (e) {
+                    // catching in case toastify has an issue/browser doesn't understand
+                    console.error("Toastify:", e);
+                }
+
+            };
+
+            historyBar.appendChild(img);
+        }
+
+
+
+
+    }
+
+    // javascript form validation
+    async function validateForm() {
+        let ret = true;
+        let fields = document.forms[0].elements;
+
+        // name
+        if (fields[0].value.trim() === '') {
+            fields[0].classList.add("error");
+            showTip(fields[0], "Please enter a name longer than 0 characters");
+            ret = false;
+        } else {
+            fields[0].classList.remove("error");
+            clearTip(fields[0]);
+        }
+
+        // Email
+        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(fields[1].value)) {
+            fields[1].classList.remove("error");
+            clearTip(fields[1]);
+        } else {
+            fields[1].classList.add("error");
+            showTip(fields[1], "Enter a valid email (e.x., name@example.com)");
+            ret = false;
+        }
+
+        // Gamer ID
+        if (fields[2].value.trim() === '') {
+            fields[2].classList.add("error");
+            showTip(fields[2], "Nintendo gamer ID is required.");
+            ret = false;
+        } else {
+            fields[2].classList.remove("error");
+            clearTip(fields[2]);
+        }
+
+        // if valid
+        if (ret) {
+            // save form fields in localStorage
+            localStorage.setItem("name", fields[0].value.trim());
+            localStorage.setItem("email", fields[1].value.trim());
+            localStorage.setItem("gamer_id", fields[2].value.trim());
+
+            // also try cookies
+            try {
+                if ("cookieStore" in window) {
+                    await cookieStore.set({
+                        name: "name",
+                        value: fields[0].value.trim(),
+                        path: "/"
+                    });
+                    await cookieStore.set({
+                        name: "email",
+                        value: fields[1].value.trim(),
+                        path: "/"
+                    });
+                    await cookieStore.set({
+                        name: "gamer_id",
+                        value: fields[2].value.trim(),
+                        path: "/"
+                    });
+                }
+            } catch (e) {
+                console.error("Cookie write failed:", e);
+            }
+
+            // save selected character
+            let charImg = document.getElementById("charImg");
+            if (charImg) {
+                let characterName = charImg.src.split("/").pop().replace(".png", "");
+
+                // Find how many characters are already saved
+                let count = 0;
+                for (let i = 0; i < localStorage.length; i++) {
+                    if (localStorage.key(i).startsWith("character_")) {
+                        count++;
+                    }
+                }
+
+                // get next number
+                let key = "character_" + (count + 1);
+
+                // Save to localStorage
+                localStorage.setItem(key, characterName);
+
+                // Also save to cookies
+                try {
+                    if ("cookieStore" in window) {
+                        await cookieStore.set({
+                            name: key,
+                            value: characterName,
+                            path: "/"
+                        });
+                    }
+                } catch (e) {
+                    console.error("Cookie write failed for character:", e);
+                }
+
+
+                await updateCharacterHistory();
+            }
+            // reset the questions to the start
+            resetQuestions();
+        }
+
+        return ret;
+    }
+
+
+
+
+</script>
+
+
+<body>
+
+    <div id="flex">
+        <div id="main"></div>
+        <div id="main2"></div>
+    </div>
+
+</body>
+
+</html>
